@@ -15,8 +15,9 @@ import Me from "~/pages/Me"
 import StartPage from "~/pages/StartPage"
 import SignIn from "~/pages/SignIn"
 import { px2dp } from '~/common/common'
+import { UserProvider, UserContext } from '~/components/UserContext'
 
-function Tabs(s) {
+function Tabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: "微信" }} />
@@ -33,7 +34,7 @@ export default function App() {
   const [isReady, setIsReady] = React.useState(false)
   const [start, setStart] = React.useState(0)
   const [startPageShow, setStartPageShow] = React.useState(false)
-
+  
   function handlerAppStateChange(e) {
     console.log(e);
 
@@ -54,45 +55,50 @@ export default function App() {
         AppState.addEventListener("change", handlerAppStateChange)
       })
     })
+  }, [])
 
-    
-
-  })
-  
   if (!isReady) {
     return <Text>123</Text>;
   }
 
   return (
-    <>
+    <UserProvider value={{s:1}}>
       {
-        <SignIn />
-        // startPageShow ? <StartPage /> : (
-        //   <NavigationContainer>
-        //     <Stack.Navigator>
-        //       <Stack.Screen
-        //         name="Home"
-        //         component={Tabs}
-        //         options={{
-        //           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        //           headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
-        //           gestureDirection: 'horizontal',
-        //           headerShown: false,
-        //         }} />
-        //       {/* <Stack.Screen
-        //     name="Details"
-        //     component={ContactPerson}
-        //     initialParams={{ itemId: 42 }} options={{
-        //       cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        //       headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
-        //       gestureDirection: "horizontal",
-        //       // headerShown: false,
-        //     }} /> */}
-        //     </Stack.Navigator>
-        //   </NavigationContainer>
-        // )
+        startPageShow ? <StartPage /> : (
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="SignIn">
+              <Stack.Screen
+                name="SignIn"
+                component={SignIn}
+                options={{
+                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                  headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+                  gestureDirection: 'horizontal',
+                  headerShown: false,
+                }} />
+              <Stack.Screen
+                name="Home"
+                component={Tabs}
+                options={{
+                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                  headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+                  gestureDirection: 'horizontal',
+                  headerShown: false,
+                }} />
+              {/* <Stack.Screen
+            name="Details"
+            component={ContactPerson}
+            initialParams={{ itemId: 42 }} options={{
+              cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+              gestureDirection: "horizontal",
+              // headerShown: false,
+            }} /> */}
+            </Stack.Navigator>
+          </NavigationContainer>
+        )
       }
-    </>
+    </UserProvider>
   );
 }
 

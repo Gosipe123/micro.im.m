@@ -11,18 +11,20 @@ export default {
     return fetch(url, {
       method: method,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(body),
+      body: qs.stringify(body),
+    }).then((res) => {
+      return res.json();
     })
   },
   get(url, body) {
     return this.request(url, 'GET', body)
   },
-  post(url, body){
+  post(url, body) {
     return this.request(url, 'POST', body)
   },
-  signIn(body){
-    return this.post(`${api}/v1/api/post/user/login`,body)
+  signIn(body) {
+    return this.post(`${api}/v1/api/post/user/login`, body)
   }
 }
