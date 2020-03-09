@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, AppState } from 'react-native';
+import { StyleSheet, AppState, View, Text } from 'react-native';
+import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   createStackNavigator,
@@ -29,6 +30,7 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [isReady, setIsReady] = React.useState(false)
   const [start, setStart] = React.useState(0)
   const [startPageShow, setStartPageShow] = React.useState(false)
 
@@ -38,13 +40,33 @@ export default function App() {
   }
 
   React.useEffect(() => {
-    AppState.addEventListener("change", handlerAppStateChange)
+    Font.loadAsync(
+      'antoutline',
+      // eslint-disable-next-line
+      require('@ant-design/icons-react-native/fonts/antoutline.ttf')
+    ).then(() => {
+      Font.loadAsync(
+        'antfill',
+        // eslint-disable-next-line
+        require('@ant-design/icons-react-native/fonts/antfill.ttf')
+      ).then(() => {
+        setIsReady(true)
+        AppState.addEventListener("change", handlerAppStateChange)
+      })
+    })
+
+    
+
   })
+  
+  if (!isReady) {
+    return <Text>123</Text>;
+  }
 
   return (
     <>
       {
-        <SignIn/>
+        <SignIn />
         // startPageShow ? <StartPage /> : (
         //   <NavigationContainer>
         //     <Stack.Navigator>
