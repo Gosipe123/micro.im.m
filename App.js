@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, AppState, View, Text } from 'react-native';
+import { StyleSheet, AppState, Text, AsyncStorage } from 'react-native';
 import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import {
@@ -12,17 +12,51 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from "~/pages/HomeScreen"
 import ContactPerson from "~/pages/ContactPerson"
 import Me from "~/pages/Me"
-import StartPage from "~/pages/StartPage"
 import SignIn from "~/pages/SignIn"
+import SignUp from "~/pages/SignUp"
 import { px2dp } from '~/common/common'
 import { UserProvider, UserContext } from '~/components/UserContext'
+import Toast from '@ant-design/react-native/lib/toast';
+import Icon from '@ant-design/react-native/lib/icon';
 
 function Tabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "微信" }} />
-      <Tab.Screen name="ContactPerson" component={ContactPerson} options={{ title: "联系人" }} initialParams={{ itemId: 42 }} />
-      <Tab.Screen name="Me" component={Me} options={{ title: "我" }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        tabBarOptions={{
+          activeTintColor: "#00f",
+          inactiveTintColor: '#000'
+        }}
+        tabStyle={{ color: "red" }}
+        options={{
+          title: "微信",
+          tabBarIcon: ({ focused, color }) => {
+            return <Icon name={'wechat'} size={px2dp(50)} color={color} />
+          }
+        }} />
+      <Tab.Screen
+        name="ContactPerson"
+        component={ContactPerson}
+        options={{
+          title: "联系人",
+          tabBarIcon: ({ focused, color }) => {
+            return <Icon name={'team'} size={px2dp(50)} color={color} />
+          }
+        }}
+        initialParams={{
+          itemId: 42,
+        }} />
+      <Tab.Screen
+        name="Me"
+        component={Me}
+        options={{
+          title: "我",
+          tabBarIcon: ({ focused, color }) => {
+            return <Icon name={'user'} size={px2dp(50)} color={color} />
+          }
+        }} />
     </Tab.Navigator>
   )
 }
@@ -32,60 +66,82 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [isReady, setIsReady] = React.useState(false)
+  const [initialRouteName, setInitialRouteName] = React.useState("Home")
   const [start, setStart] = React.useState(0)
-  const [startPageShow, setStartPageShow] = React.useState(false)
-  
-  function handlerAppStateChange(e) {
-    console.log(e);
+  let userData = {}
 
+  function handlerAppStateChange(e) {
+    // console.log(e);
   }
 
   React.useEffect(() => {
     Font.loadAsync(
       'antoutline',
-      // eslint-disable-next-line
       require('@ant-design/icons-react-native/fonts/antoutline.ttf')
-    ).then(() => {
-      Font.loadAsync(
+    ).then(async () => {
+      await Font.loadAsync(
         'antfill',
-        // eslint-disable-next-line
         require('@ant-design/icons-react-native/fonts/antfill.ttf')
-      ).then(() => {
-        setIsReady(true)
-        AppState.addEventListener("change", handlerAppStateChange)
-      })
+      )
+      try {
+        const value = await AsyncStorage.getItem('userData');
+
+        if (value == null) {
+          setInitialRouteName("SignIn")
+          await AsyncStorage.removeItem('userData')
+        } else {
+          userData = JSON.parse(value)
+          setInitialRouteName("Home")
+
+        }
+      } catch (error) {
+        Toast.fail("APP初始化错误", 1)
+        setInitialRouteName("SignIn")
+        await AsyncStorage.removeItem('userData')
+      }
+
+      setIsReady(true)
+      AppState.addEventListener("change", handlerAppStateChange)
     })
+
   }, [])
 
   if (!isReady) {
-    return <Text>123</Text>;
+    return null;
   }
 
   return (
-    <UserProvider value={{s:1}}>
-      {
-        startPageShow ? <StartPage /> : (
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="SignIn">
-              <Stack.Screen
-                name="SignIn"
-                component={SignIn}
-                options={{
-                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-                  headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
-                  gestureDirection: 'horizontal',
-                  headerShown: false,
-                }} />
-              <Stack.Screen
-                name="Home"
-                component={Tabs}
-                options={{
-                  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-                  headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
-                  gestureDirection: 'horizontal',
-                  headerShown: false,
-                }} />
-              {/* <Stack.Screen
+    <UserProvider data={userData}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName={initialRouteName}>
+          <Stack.Screen
+            name="SignIn"
+            component={SignIn}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+              gestureDirection: 'horizontal',
+              headerShown: false,
+            }} />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUp}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+              gestureDirection: 'horizontal',
+              headerShown: false,
+            }} />
+          <Stack.Screen
+            name="Home"
+            component={Tabs}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
+              gestureDirection: 'horizontal',
+              headerShown: false,
+            }} />
+          {/* <Stack.Screen
             name="Details"
             component={ContactPerson}
             initialParams={{ itemId: 42 }} options={{
@@ -94,10 +150,8 @@ export default function App() {
               gestureDirection: "horizontal",
               // headerShown: false,
             }} /> */}
-            </Stack.Navigator>
-          </NavigationContainer>
-        )
-      }
+        </Stack.Navigator>
+      </NavigationContainer>
     </UserProvider>
   );
 }

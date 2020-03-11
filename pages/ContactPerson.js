@@ -43,7 +43,7 @@ export default function ContactPerson({ route, navigation }) {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="ContactPerson"
+        name="联系人"
         component={CP}
         initialParams={route.params}
         options={{

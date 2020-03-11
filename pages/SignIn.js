@@ -7,7 +7,8 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
+  StatusBar,
+  AsyncStorage,
 } from "react-native"
 import InputItem from '@ant-design/react-native/lib/input-item';
 import List from '@ant-design/react-native/lib/list';
@@ -16,31 +17,37 @@ import Button from '@ant-design/react-native/lib/button';
 import { px2dp, errorHandler } from '~/common/common'
 import apis from '~/common/http'
 import md5 from "react-native-md5";
-import { UserContext } from '~/components/UserContext'
+import { UserContext, UPDATE_USER } from '~/components/UserContext'
 
 export default function SignIn({ navigation }) {
-  const [userData, setUserData] = React.useState({ account: '123123', pwd: '123123' })
+  const [userData, setUserData] = React.useState({ account: 'a123123', pwd: '123123' })
   const [signinButDisabled, setsigninButDisabled] = React.useState(true)
   const [signInLoad, setSignInLoad] = React.useState(false)
-  const { username } = React.useContext(UserContext);
+  const { dispatch } = React.useContext(UserContext);
 
   React.useEffect(() => {
     setsigninButDisabled(userData.account.length < 6 || userData.pwd.length < 6)
   }, [userData])
 
+  //登录
   function signIn() {
     setSignInLoad(true)
     setsigninButDisabled(true)
     let pwd_md5v = md5.hex_md5(userData.pwd);
-    apis.signIn({ account: userData.account, pwd: pwd_md5v }).then(res => {
+    apis.signIn({ account: userData.account, pwd: pwd_md5v }).then(async res => {
       if (res.status == 200) {
-
+        dispatch({ type: UPDATE_USER, userData: res.data})
+        await AsyncStorage.setItem('userData',JSON.stringify(res.data));
+        navigation.replace("Home")
+        
       } else {
-        Toast.fail(res.error.message, 1000, () => { }, false)
+        Toast.fail(res.error.message, 1)
       }
-
+      
     }).catch(err => {
-      Toast.fail("未知错误", 1000, () => { }, false)
+      console.log(err);
+      
+      Toast.fail("未知错误", 1)
     }).then(() => {
       setSignInLoad(false)
       setsigninButDisabled(false)
@@ -48,11 +55,12 @@ export default function SignIn({ navigation }) {
   }
 
   function goToSigiUp() {
-    navigation.navigate("SignUp")
+    navigation.replace("SignUp")
   }
 
   return (
     <KeyboardAvoidingView behavior="padding" enabled={Platform.OS === 'ios'} style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={styles.contentContainer}
