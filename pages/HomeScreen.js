@@ -7,6 +7,8 @@ import {
   StyleSheet,
   PixelRatio,
   ScrollView,
+  Animated,
+  TextInput,
 } from 'react-native';
 import {
   createStackNavigator,
@@ -19,35 +21,246 @@ import { px2dp } from '~/common/common'
 
 const Stack = createStackNavigator();
 
-function Home({ navigation }) {
-  // navigation.setOptions({
-  //   title: '订单',
+function Home({navigation}) {
+  
+  let searchInput = React.createRef();
 
-  // })
+  const [viewHeight] = React.useState(new Animated.Value(0))
+  const [search] = React.useState(new Animated.Value(52))
+  const [cancelBut] = React.useState(new Animated.Value(px2dp(710)))
+  const [scrollEnabled, setScrollEnabled] = React.useState(true)
+
+  const [headContentTop] = React.useState(new Animated.Value(90))
+  const [headContentOpacity] = React.useState(new Animated.Value(1))
+
+  //搜索框动画插值计算
+  const searchBoxWidth = search.interpolate({
+    inputRange: [0, 52, 100],
+    outputRange: ["0%", "52%", "100%"]
+  })
+
+  //取消按钮动画进场
+  const cancelButW = Animated.timing(cancelBut, {
+    toValue: px2dp(588),
+    duration: 350,
+    // useNativeDriver: true, // 启动原生动画
+  })
+  //取消按钮出场动画
+  const cancelButEndW = Animated.timing(cancelBut, {
+    toValue: px2dp(710),
+    duration: 350,
+  })
+
+  //页头入场
+  const headContentTopStart = Animated.parallel([
+    Animated.timing(headContentTop, {
+      toValue: 50,
+      duration: 350,
+    }),
+    Animated.timing(headContentOpacity, {
+      toValue: 0,
+      duration: 350,
+    }),
+  ])
+
+  //页头出场
+  const headContentTopEnd = Animated.parallel([
+    Animated.timing(headContentTop, {
+      toValue: 90,
+      duration: 350,
+    }),
+    Animated.timing(headContentOpacity, {
+      toValue: 1,
+      duration: 350,
+    }),
+  ])
+  
+
+  //设置页头
+  navigation.setOptions({
+    headerStyle:{
+      height:headContentTop,
+      
+    },
+    headerTitleContainerStyle:{
+      // opacity:headContentOpacity,
+    }
+  })
+
+  //搜索框动画
+  const searchBoxAnima = Animated.timing(search, {
+    toValue: 100,
+    duration: 350,
+  })
+
+  //搜索框结束动画
+  const searchBoxEndAnima = Animated.timing(search, {
+    toValue: 52,
+    duration: 350,
+  })
+
+  const height = viewHeight.interpolate({
+    inputRange: [-270, 0, 270],
+    outputRange: [270, 0, 0]
+  })
+
+  //滚动动画事件
+  const animatedEvent = Animated.event([
+    {
+      nativeEvent: {
+        contentOffset: { y: viewHeight }
+      }
+    },
+  ])
 
   return (
-    <View style={{ backgroundColor: '#fff', flex: 1, }}>
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={true}>
-        <View style={{height:'100%',backgroundColor:'#eee'}}>
+    <View style={styles.homeBox}>
+      <View>
+        <Animated.View style={[styles.fillinghaed, { height: height }]}></Animated.View>
+        <Animated.ScrollView
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={true}
+          scrollEventThrottle={1}
+          onScroll={animatedEvent}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="on-drag"
+          scrollEnabled={scrollEnabled}
+        >
+          <View style={[styles.searchFlex]}>
+            <Animated.View style={{ width: cancelBut }}>
+              <TouchableOpacity
+                style={styles.searchTouchable}
+                activeOpacity={1}
+                onPress={() => {
+                  searchInput.current.focus()
+                }}
+              >
+                <Animated.View style={{
+                  flexDirection: 'row',
+                  width: searchBoxWidth
+                }}>
+                  <View style={styles.searchIconBox}><Icon name="search" sizi={px2dp(20)} color={"#aaa"} /></View>
+                  <TextInput
+                    clearTextOnFocus={true}
+                    style={styles.searchInput}
+                    onFocus={() => {
+                      searchBoxEndAnima.stop()
+                      headContentTopEnd.stop()
+                      cancelButEndW.stop()
+                      //开始搜索框动画
+                      searchBoxAnima.start()
+                      cancelButW.start()
+                      setScrollEnabled(false)
+                      headContentTopStart.start()
+                    }}
+                    onBlur={() => {
+                      setScrollEnabled(true)
+                      // searchBoxAnima.stop()
+                      // searchBoxEndAnima.start()
+                    }}
+                    autoCapitalize="none"
+                    placeholder="搜索记录或用户"
+                    ref={searchInput}
+
+                  ></TextInput>
+                </Animated.View>
+              </TouchableOpacity>
+            </Animated.View>
+            <TouchableOpacity
+              activeOpacity={1}
+              style={styles.cancelBox}
+              onPress={() => {
+                searchInput.current.blur()
+                searchBoxAnima.stop()
+                cancelButW.stop()
+                headContentTopStart.stop()
+                searchBoxEndAnima.start()
+                cancelButEndW.start()
+                headContentTopEnd.start(0)
+              }}
+            >
+              <Text style={styles.cancelText}>取消</Text>
+            </TouchableOpacity>
+          </View>
           <Text>Home Screen</Text>
-          <Button
-            title="Go to Details"
-            onPress={() => {
-              /* 1. Navigate to the Details route with params */
-              // navigation.navigate('Details', {
-              //   itemId: 86,
-              //   otherParam: 'anything you want here',
-              // });
-              Toast.success("ssss", 1)
-            }}
-          />
-        </View>
-      </ScrollView>
-      <View style={{backgroundColor:'#eee',minHeight:"100%"}}></View>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+          <Text>Home Screen</Text>
+        </Animated.ScrollView>
+      </View>
     </View>
   )
+}
+
+function Head() {
+  return <View>
+    <Text>123</Text>
+  </View>
 }
 
 export default function HomeScreen({ navigation }) {
@@ -59,7 +272,7 @@ export default function HomeScreen({ navigation }) {
 
   function HeaderRight() {
     return (
-      <View style={styles.rightBox}>
+      <View>
         <TouchableOpacity
           style={styles.rightBut}
           onPress={rightOptionsHandlerShow}>
@@ -89,7 +302,7 @@ export default function HomeScreen({ navigation }) {
       <Stack.Screen
         name="微信"
         component={Home}
-
+        header={Head}
         options={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
           headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
@@ -107,9 +320,6 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  rightBox: {
-
-  },
   rightBut: {
     width: px2dp(80),
     height: px2dp(60),
@@ -161,14 +371,57 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1 / PixelRatio.get(),
     borderColor: 'rgba(238, 238, 238,0.2)',
   },
-  rightOptions: {
-
+  contentContainer: {
+    backgroundColor: '#f1f1f1',
   },
-  contentContainer:{
-    position:'absolute',
-    top:1,
-    flex:1,
-    borderWidth:1,
-    // backgroundColor: '#eee',
+  homeBox: {
+    backgroundColor: '#f1f1f1',
+    flex: 1,
+  },
+  fillinghaed: {
+    backgroundColor: '#fff',
+    position: 'absolute',
+    width: "100%"
+  },
+  searchFlex: {
+    backgroundColor: '#fff',
+    justifyContent: "space-between",
+    alignItems: 'center',
+    paddingVertical: px2dp(20),
+    flexDirection: "row",
+    paddingLeft: px2dp(20),
+    borderBottomWidth: 1 / PixelRatio.get(),
+    borderColor: '#c7c7cc'
+  },
+  searchTouchable: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f1f1f1',
+    borderRadius: px2dp(10),
+    justifyContent: 'center',
+  },
+  searchIconBox: {
+    width: px2dp(60),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchInput: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    fontSize: px2dp(34),
+    height: px2dp(66),
+    textAlignVertical: "center",
+    alignItems: 'center',
+    justifyContent: "center",
+    flex: 1,
+  },
+  cancelBox:{
+    paddingHorizontal: px2dp(40),
+     height: px2dp(66), 
+     justifyContent: 'center',
+  },
+  cancelText:{ 
+    fontSize: px2dp(30), 
+    color: '#0086f1',
   }
 })
