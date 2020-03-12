@@ -9,6 +9,8 @@ import {
   ScrollView,
   Animated,
   TextInput,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
 import {
   createStackNavigator,
@@ -21,8 +23,7 @@ import { px2dp } from '~/common/common'
 
 const Stack = createStackNavigator();
 
-function Home({navigation}) {
-  
+function Home({ navigation }) {
   let searchInput = React.createRef();
 
   const [viewHeight] = React.useState(new Animated.Value(0))
@@ -30,25 +31,13 @@ function Home({navigation}) {
   const [cancelBut] = React.useState(new Animated.Value(px2dp(710)))
   const [scrollEnabled, setScrollEnabled] = React.useState(true)
 
-  const [headContentTop] = React.useState(new Animated.Value(90))
+  const [headContentTop] = React.useState(new Animated.Value(88))
   const [headContentOpacity] = React.useState(new Animated.Value(1))
 
   //搜索框动画插值计算
   const searchBoxWidth = search.interpolate({
     inputRange: [0, 52, 100],
     outputRange: ["0%", "52%", "100%"]
-  })
-
-  //取消按钮动画进场
-  const cancelButW = Animated.timing(cancelBut, {
-    toValue: px2dp(588),
-    duration: 350,
-    // useNativeDriver: true, // 启动原生动画
-  })
-  //取消按钮出场动画
-  const cancelButEndW = Animated.timing(cancelBut, {
-    toValue: px2dp(710),
-    duration: 350,
   })
 
   //页头入场
@@ -60,44 +49,53 @@ function Home({navigation}) {
     Animated.timing(headContentOpacity, {
       toValue: 0,
       duration: 350,
+      useNativeDriver: true,
     }),
-  ])
+    Animated.timing(cancelBut, {
+      toValue: px2dp(588),
+      duration: 350,
+      // useNativeDriver: true, // 启动原生动画
+    }),
+    Animated.timing(search, {
+      toValue: 100,
+      duration: 350,
+    }),
+  ], { useNativeDriver: true })
 
   //页头出场
   const headContentTopEnd = Animated.parallel([
     Animated.timing(headContentTop, {
-      toValue: 90,
+      toValue: 88,
       duration: 350,
     }),
     Animated.timing(headContentOpacity, {
       toValue: 1,
       duration: 350,
+      useNativeDriver: true,
     }),
-  ])
-  
+    Animated.timing(cancelBut, {
+      toValue: px2dp(710),
+      duration: 350,
+    }),
+    Animated.timing(search, {
+      toValue: 52,
+      duration: 350,
+    }),
+  ], { useNativeDriver: true })
 
   //设置页头
-  navigation.setOptions({
-    headerStyle:{
-      height:headContentTop,
-      
-    },
-    headerTitleContainerStyle:{
-      // opacity:headContentOpacity,
-    }
-  })
-
-  //搜索框动画
-  const searchBoxAnima = Animated.timing(search, {
-    toValue: 100,
-    duration: 350,
-  })
-
-  //搜索框结束动画
-  const searchBoxEndAnima = Animated.timing(search, {
-    toValue: 52,
-    duration: 350,
-  })
+  // navigation.setOptions({
+  //   headerStyle: {
+  //     height: headContentTop,
+  //     shadowOpacity: 0,
+  //   },
+  //   headerTitleContainerStyle: {
+  //     opacity: headContentOpacity,
+  //   },
+  //   headerRightContainerStyle: {
+  //     opacity: headContentOpacity,
+  //   }
+  // })
 
   const height = viewHeight.interpolate({
     inputRange: [-270, 0, 270],
@@ -115,6 +113,14 @@ function Home({navigation}) {
 
   return (
     <View style={styles.homeBox}>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={{backgroundColor:'#fff'}}>
+        <View style={{borderWidth:1,borderColor:'red',height:50,flexDirection:'row',justifyContent:"space-between",alignItems:'center',}}>
+          <View><Text>123</Text></View>
+          <View><Text>123</Text></View>
+          <View><Text>123</Text></View>
+        </View>
+      </SafeAreaView>
       <View>
         <Animated.View style={[styles.fillinghaed, { height: height }]}></Animated.View>
         <Animated.ScrollView
@@ -144,19 +150,10 @@ function Home({navigation}) {
                     clearTextOnFocus={true}
                     style={styles.searchInput}
                     onFocus={() => {
-                      searchBoxEndAnima.stop()
                       headContentTopEnd.stop()
-                      cancelButEndW.stop()
                       //开始搜索框动画
-                      searchBoxAnima.start()
-                      cancelButW.start()
                       setScrollEnabled(false)
                       headContentTopStart.start()
-                    }}
-                    onBlur={() => {
-                      setScrollEnabled(true)
-                      // searchBoxAnima.stop()
-                      // searchBoxEndAnima.start()
                     }}
                     autoCapitalize="none"
                     placeholder="搜索记录或用户"
@@ -171,12 +168,10 @@ function Home({navigation}) {
               style={styles.cancelBox}
               onPress={() => {
                 searchInput.current.blur()
-                searchBoxAnima.stop()
-                cancelButW.stop()
                 headContentTopStart.stop()
-                searchBoxEndAnima.start()
-                cancelButEndW.start()
-                headContentTopEnd.start(0)
+                headContentTopEnd.start(() => {
+                  setScrollEnabled(true)
+                })
               }}
             >
               <Text style={styles.cancelText}>取消</Text>
@@ -257,12 +252,6 @@ function Home({navigation}) {
   )
 }
 
-function Head() {
-  return <View>
-    <Text>123</Text>
-  </View>
-}
-
 export default function HomeScreen({ navigation }) {
   const [rightOptionsShow, setRightOptionsShow] = React.useState(false)
 
@@ -298,24 +287,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="微信"
-        component={Home}
-        header={Head}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
-          gestureDirection: 'horizontal',
-          headerTitleAlign: 'center',
-          headerRight: HeaderRight,
-          headerStyle: {
-            borderWidth: 0,
-            elevation: 0,
-            shadowOpacity: 0,
-          },
-        }} />
-    </Stack.Navigator>
+    <Home/>
   );
 }
 
@@ -415,13 +387,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
   },
-  cancelBox:{
+  cancelBox: {
     paddingHorizontal: px2dp(40),
-     height: px2dp(66), 
-     justifyContent: 'center',
+    height: px2dp(66),
+    justifyContent: 'center',
   },
-  cancelText:{ 
-    fontSize: px2dp(30), 
+  cancelText: {
+    fontSize: px2dp(30),
     color: '#0086f1',
   }
 })

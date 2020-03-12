@@ -84,16 +84,16 @@ export default function App() {
         require('@ant-design/icons-react-native/fonts/antfill.ttf')
       )
       try {
-        const value = await AsyncStorage.getItem('userData');
+      //   const value = await AsyncStorage.getItem('userData');
 
-        if (value == null) {
-          setInitialRouteName("SignIn")
-          await AsyncStorage.removeItem('userData')
-        } else {
-          userData = JSON.parse(value)
-          setInitialRouteName("Home")
+      //   if (value == null) {
+      //     setInitialRouteName("SignIn")
+      //     await AsyncStorage.removeItem('userData')
+      //   } else {
+      //     userData = JSON.parse(value)
+      //     setInitialRouteName("Home")
 
-        }
+      //   }
       } catch (error) {
         Toast.fail("APP初始化错误", 1)
         setInitialRouteName("SignIn")

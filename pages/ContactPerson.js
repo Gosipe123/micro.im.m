@@ -20,7 +20,7 @@ function CP({ route, navigation }) {
       <Button
         title="Go to Details... again"
         onPress={() =>
-          navigation.push('Details', {
+          navigation.push('Home', {
             itemId: Math.floor(Math.random() * 100),
           })
         }
