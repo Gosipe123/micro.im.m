@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Text,
   View,
-  Button,
   TouchableOpacity,
   StyleSheet,
   PixelRatio,
@@ -12,6 +11,7 @@ import {
   SafeAreaView,
   StatusBar,
   Modal,
+  TouchableHighlight,
 } from 'react-native';
 import {
   createStackNavigator,
@@ -20,23 +20,78 @@ import {
 } from '@react-navigation/stack';
 import Toast from '@ant-design/react-native/lib/toast';
 import Icon from '@ant-design/react-native/lib/icon';
+import List from '@ant-design/react-native/lib/list';
 import { px2dp } from '~/common/common'
+import { SwipeRow, SwipeListView } from 'react-native-swipe-list-view';
+import Icone from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Button } from 'react-native-elements';
 
 const Stack = createStackNavigator();
 
-export default function Home(props) {
+export default function Home({ navigation }) {
   const searchInput = React.createRef();
-  const scrollView = React.createRef();
+  const [scrollView, setScrollView] = React.useState();
+  const [controlOpen, setControlOpen] = React.useState(false);
+
+  const [chatData, setChatData] = React.useState([]);
 
   const [viewHeight] = React.useState(new Animated.Value(0))
   const [search] = React.useState(new Animated.Value(52))
   const [cancelBut] = React.useState(new Animated.Value(px2dp(710)))
-  const [scrollEnabled, setScrollEnabled] = React.useState(true)
 
   const [headContentTop] = React.useState(new Animated.Value(0))
   const [headContentOpacity] = React.useState(new Animated.Value(1))
   const [headContentHeight] = React.useState(new Animated.Value(px2dp(90)))
   const [rightOptionsShow, setRightOptionsShow] = React.useState(false)
+
+  const [leftSwipeRow] = React.useState(new Animated.Value({}))
+
+  React.useEffect(() => {
+    let chatDataA = [
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+    ]
+    setChatData(chatDataA)
+    for (const key in chatDataA) {
+      leftSwipeRow[`${key}`] = new Animated.Value(0);
+    }
+  }, [])
 
   //搜索框动画插值计算
   const searchBoxWidth = search.interpolate({
@@ -117,20 +172,191 @@ export default function Home(props) {
     setRightOptionsShow(!rightOptionsShow)
   }
 
-  let control = false
-  //控制滚动区域，滚动来显示搜索框显示
-  function controlScrollView(y) {
-    if (y > 0) {
-      control = true
-      const h = px2dp(106)
-      if (y < h) {
-        if (y < px2dp(60)) {
-          scrollView.current.scrollToOffset({ offset: 0, animated: true })
-        } else {
-          scrollView.current.scrollToOffset({ offset: h, animated: true })
-        }
-      }
+  //渲染搜索用户
+  function renderListSearch() {
+    return (
+      <View style={[styles.searchFlex]} >
+        <Animated.View style={{ width: cancelBut }}>
+          <TouchableOpacity
+            style={styles.searchTouchable}
+            activeOpacity={1}
+            onPress={() => {
+              searchInput.current.focus()
+            }}
+          >
+            <Animated.View style={{
+              flexDirection: 'row',
+              width: searchBoxWidth
+            }}>
+              <View style={styles.searchIconBox}><Icon name="search" sizi={px2dp(20)} color={"#aaa"} /></View>
+              <TextInput
+                clearTextOnFocus={true}
+                style={styles.searchInput}
+                onFocus={() => {
+                  headContentTopEnd.stop()
+                  //开始搜索框动画
+                  headContentTopStart.start()
+                  scrollView.setNativeProps({ scrollEnabled: false });
+                }}
+                autoCapitalize="none"
+                placeholder="搜索记录或用户"
+                ref={searchInput}
+              ></TextInput>
+            </Animated.View>
+          </TouchableOpacity>
+        </Animated.View>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.cancelBox}
+          onPress={() => {
+            searchInput.current.blur()
+            headContentTopStart.stop()
+            headContentTopEnd.start(() => {
+              scrollView.setNativeProps({ scrollEnabled: true });
+            })
+          }}
+        >
+          <Text style={styles.cancelText}>取消</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  //渲染行分割线
+  function renderItemDividingLine() {
+    return (
+      <View style={{ alignItems: "flex-end" }}>
+        <View style={{ borderWidth: 1 / PixelRatio.get(), borderColor: '#c7c7cc', width: "84%" }}></View>
+      </View>
+    )
+  }
+
+  function closeRow(rowMap, rowKey) {
+    if (rowMap[rowKey]) {
+      rowMap[rowKey].closeRow();
     }
+  }
+
+  //渲染聊天列表子项
+  function ChatRow({ item, index }, rowMap) {
+    return (
+      <SwipeRow
+        leftOpenValue={px2dp(280)}
+        rightOpenValue={px2dp(-280)}
+        swipeKey={index.toString()}
+        friction={10}
+        directionalDistanceChangeThreshold={10}
+        tension={50}
+        swipeToOpenVelocityContribution={10}
+        onSwipeValueChange={
+          Animated.event([
+            {
+              value: leftSwipeRow[`${index}`]
+            },
+          ])
+        }
+      >
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: "space-between" }}>
+          <Animated.View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            width: leftSwipeRow[`${index}`].interpolate({
+              inputRange: [-1, 0, 50],
+              outputRange: [0, 0, 50]
+            }),
+          }}>
+            <View style={{ alignItems: 'center', justifyContent: "center", backgroundColor: '#208dff', height: "100%", flex: 1, overflow: "hidden" }}>
+              <TouchableOpacity activeOpacity={1} style={{ alignItems: "center", minWidth: px2dp(280) }}>
+                <Icon name="pushpin" size={px2dp(50)} color={"#fff"} />
+                <Text style={{ color: '#fff', fontWeight: "500", marginTop: px2dp(10) }} ellipsizeMode="clip" numberOfLines={1}>设为未读</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity activeOpacity={1} style={{ alignItems: 'center', justifyContent: "center", backgroundColor: '#14b94f', height: "100%", flex: 1, overflow: "hidden" }}>
+              <View style={{ alignItems: "center", minWidth: px2dp(280) }}>
+                <Icon name="pushpin" size={px2dp(50)} color={"#fff"} />
+                <Text style={{ color: '#fff', fontWeight: "500", marginTop: px2dp(10) }} ellipsizeMode="clip" numberOfLines={1}>置顶</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            width: leftSwipeRow[`${index}`].interpolate({
+              inputRange: [-50, 0],
+              outputRange: [50, 0]
+            })
+          }}>
+            <View style={{ alignItems: 'center', justifyContent: "center", backgroundColor: '#be8723', height: "100%", flex: 1, overflow: "hidden" }}>
+              <TouchableOpacity activeOpacity={1} style={{ alignItems: "center", minWidth: px2dp(280) }}>
+                <Icon name="pushpin" size={px2dp(50)} color={"#fff"} />
+                <Text style={{ color: '#fff' }}>设为未读</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ alignItems: 'center', justifyContent: "center", backgroundColor: '#f30000', height: "100%", flex: 1, overflow: "hidden" }}>
+              <TouchableOpacity activeOpacity={1} style={{ alignItems: "center", minWidth: px2dp(280) }}>
+                <Icon name="pushpin" size={px2dp(50)} color={"#fff"} />
+                <Text style={{ color: '#fff' }}>置顶</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
+        <TouchableHighlight
+          underlayColor={"#ddd"}
+          activeOpacity={1}
+          onPress={() => {
+            if (controlOpen) return
+            navigation.navigate("Chat")
+          }}
+        >
+          <View style={{ flexDirection: 'row', paddingVertical: px2dp(14), paddingRight: px2dp(10) }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', width: px2dp(50),marginHorizontal:px2dp(18) }}>
+              <View>
+                <View style={{ width: px2dp(40), height: px2dp(40), borderColor: "#565656", borderWidth: 1 / PixelRatio.get(), borderRadius: '50%' }}></View>
+                {/* <View style={{ position: "absolute", top: px2dp(-5), left: px2dp(-5) }}>
+                  <Icone
+                    name="check-circle"
+                    size={px2dp(50)}
+                    color="#247ad6"
+                  />
+                </View> */}
+              </View>
+            </View>
+            <View style={{ alignItems: "center", justifyContent: "center", }}>
+              <View style={{ backgroundColor: "#2d8bf0", width: px2dp(110), height: px2dp(110), marginRight: px2dp(14), borderRadius: "50%", }}>
+
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: "row", justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: "center", flex: 1, }}>
+                  <Text style={{ fontSize: px2dp(32), fontWeight: "500", flexBasis: "auto", maxWidth: '92%' }} numberOfLines={1} >{item.name}这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回</Text>
+                  <View><Icon name={"bell"} /></View>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center", }}>
+                  <Icon name={"bell"} />
+                  <Text style={{ color: '#a0a0a0' }}>4:57 AM</Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1 }}>
+                  <View>
+                    <Text style={{ fontSize: px2dp(30), paddingVertical: px2dp(6) }} numberOfLines={1}>这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize: px2dp(28), color: '#a0a0a0' }} numberOfLines={1}>这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回</Text>
+                  </View>
+                </View>
+                <View style={{ justifyContent: 'center', alignItems: "center", paddingHorizontal: px2dp(18) }}>
+                  <View style={{ borderRadius: px2dp(20), backgroundColor: "#a0a0a0", paddingHorizontal: px2dp(12), paddingVertical: px2dp(2) }}>
+                    <Text style={{ color: "#fff", fontSize: px2dp(26) }}>123</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </TouchableHighlight>
+      </SwipeRow>
+    )
   }
 
   return (
@@ -163,14 +389,14 @@ export default function Home(props) {
               </View>
             </TouchableOpacity>
           </SafeAreaView>
-
         </Modal>
-
         <View style={styles.homeBox}>
           {/* 页头 */}
           <Animated.View style={[styles.header, { height: headContentHeight }]}>
             <Animated.View style={[styles.headerBox, { top: headContentTop, opacity: headContentOpacity }]}>
-              <View style={{ flex: 1 }}></View>
+              <View style={{ flex: 1, height: "100%", justifyContent: 'center' }}>
+                <TouchableOpacity><Text style={{ fontSize: px2dp(30), marginLeft: px2dp(20), color: '#0086f1' }}>编辑</Text></TouchableOpacity>
+              </View>
               <View style={{ flex: 2, alignItems: 'center' }}><Text style={{ fontSize: px2dp(34) }}>微信</Text></View>
               <View style={{ flex: 1, alignItems: "flex-end" }}>
                 <TouchableOpacity
@@ -187,116 +413,35 @@ export default function Home(props) {
             {/* 页头滚动填充 */}
             <Animated.View style={[styles.fillinghaed, { height: height }]}></Animated.View>
             {/* 滚动主体 */}
-            <FlatList
-              contentContainerStyle={styles.contentContainer}
+            <SwipeListView
+              data={chatData}
+              // snapToOffsets={1}
+              // snapToStart={false}
+              friction={10}
+              directionalDistanceChangeThreshold={10}
+              tension={50}
+              swipeToOpenVelocityContribution={10}
+              contentContainerStyle={[styles.contentContainer]}
               showsVerticalScrollIndicator={true}
               scrollEventThrottle={16}
               onScroll={animatedEvent}
               keyboardShouldPersistTaps="always"
               keyboardDismissMode="on-drag"
-              scrollEnabled={scrollEnabled}
               keyExtractor={(item, index) => index.toString()}
-              ref={scrollView}
-              onMomentumScrollEnd={({ nativeEvent }) => {
-                if (!control) {
-                  control = true
-                  controlScrollView(nativeEvent.contentOffset.y)
-                } else {
-                  control = false
-                }
+              listViewRef={(ref) => {
+                setScrollView(ref)
               }}
-              onScrollEndDrag={({ nativeEvent }) => {
-                controlScrollView(nativeEvent.contentOffset.y)
+              onRowOpen={() => {
+                setControlOpen(true)
               }}
-              ListHeaderComponent={
-                () => {
-                  return (
-                    <View style={[styles.searchFlex]}>
-                      <Animated.View style={{ width: cancelBut }}>
-                        <TouchableOpacity
-                          style={styles.searchTouchable}
-                          activeOpacity={1}
-                          onPress={() => {
-                            searchInput.current.focus()
-                          }}
-                        >
-                          <Animated.View style={{
-                            flexDirection: 'row',
-                            width: searchBoxWidth
-                          }}>
-                            <View style={styles.searchIconBox}><Icon name="search" sizi={px2dp(20)} color={"#aaa"} /></View>
-                            <TextInput
-                              clearTextOnFocus={true}
-                              style={styles.searchInput}
-                              onFocus={() => {
-                                headContentTopEnd.stop()
-                                //开始搜索框动画
-                                setScrollEnabled(false)
-                                headContentTopStart.start()
-                              }}
-                              autoCapitalize="none"
-                              placeholder="搜索记录或用户"
-                              ref={searchInput}
-                            ></TextInput>
-                          </Animated.View>
-                        </TouchableOpacity>
-                      </Animated.View>
-                      <TouchableOpacity
-                        activeOpacity={1}
-                        style={styles.cancelBox}
-                        onPress={() => {
-                          searchInput.current.blur()
-                          headContentTopStart.stop()
-                          headContentTopEnd.start(() => {
-                            setScrollEnabled(true)
-                          })
-                        }}
-                      >
-                        <Text style={styles.cancelText}>取消</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )
-                }
-              }
-              ItemSeparatorComponent={() => <View style={{ alignItems: "flex-end" }}><View style={{ borderWidth: 1 / PixelRatio.get(),borderColor:'#a0a0a0', width: "84%" }}></View></View>}
-              data={[
-                { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
-                { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
-              ]}
-              renderItem={({ item }) => <View style={{ flexDirection: 'row', paddingVertical: px2dp(14), paddingRight: px2dp(10) }}>
-                <View style={{ alignItems: "center", justifyContent: "center", }}>
-                  <View style={{ backgroundColor: "#3b73af", width: px2dp(110), height: px2dp(110),marginHorizontal:px2dp(14), borderRadius: "50%", }}>
-
-                  </View>
-                </View>
-                <View style={{ flex: 1, }}>
-                  <View style={{ flexDirection: "row", justifyContent: 'space-between' }}>
-                    <View style={{ flexDirection: 'row', alignItems: "center", flex: 1, }}>
-                      <Text style={{ fontSize: px2dp(32), fontWeight: "500", flexBasis: "auto", maxWidth: '92%' }} ellipsizeMode="tail" numberOfLines={1} >{item.name}</Text>
-                      <View><Icon name={"bell"} /></View>
-                    </View>
-                    <View style={{ flexDirection: "row", alignItems: "center", }}>
-                      <Icon name={"bell"} />
-                      <Text style={{color:'#a0a0a0'}}>4:57 AM</Text>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1 }}>
-                      <View>
-                        <Text style={{ fontSize: px2dp(30), paddingVertical: px2dp(6) }} ellipsizeMode="tail" numberOfLines={1}>这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回</Text>
-                      </View>
-                      <View>
-                        <Text style={{ fontSize: px2dp(28), color: '#a0a0a0' }} ellipsizeMode="tail" numberOfLines={1}>这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回这回</Text>
-                      </View>
-                    </View>
-                    <View style={{ justifyContent: 'center', alignItems: "center", paddingHorizontal: px2dp(18) }}>
-                      <View style={{borderRadius:"50%",backgroundColor:"#a0a0a0", paddingHorizontal:px2dp(8),paddingVertical:px2dp(2)}}>
-                        <Text style={{color:"#fff",fontSize:px2dp(29)}}>1234</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </View>}
+              onRowClose={() => {
+                setControlOpen(false)
+              }}
+              removeClippedSubviews={true}
+              snapToInterval={px2dp(106)}
+              ListHeaderComponent={renderListSearch}
+              ItemSeparatorComponent={renderItemDividingLine}
+              renderItem={ChatRow}
             />
           </View>
           {/* 列表主题尾 */}

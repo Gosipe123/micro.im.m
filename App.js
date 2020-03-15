@@ -14,6 +14,7 @@ import ContactPerson from "~/pages/ContactPerson"
 import Me from "~/pages/Me"
 import SignIn from "~/pages/SignIn"
 import SignUp from "~/pages/SignUp"
+import Chat from "~/pages/Chat"
 import { px2dp } from '~/common/common'
 import { UserProvider, UserContext } from '~/components/UserContext'
 import Toast from '@ant-design/react-native/lib/toast';
@@ -84,16 +85,16 @@ export default function App() {
         require('@ant-design/icons-react-native/fonts/antfill.ttf')
       )
       try {
-      //   const value = await AsyncStorage.getItem('userData');
+        //   const value = await AsyncStorage.getItem('userData');
 
-      //   if (value == null) {
-      //     setInitialRouteName("SignIn")
-      //     await AsyncStorage.removeItem('userData')
-      //   } else {
-      //     userData = JSON.parse(value)
-      //     setInitialRouteName("Home")
+        //   if (value == null) {
+        //     setInitialRouteName("SignIn")
+        //     await AsyncStorage.removeItem('userData')
+        //   } else {
+        //     userData = JSON.parse(value)
+        //     setInitialRouteName("Home")
 
-      //   }
+        //   }
       } catch (error) {
         Toast.fail("APP初始化错误", 1)
         setInitialRouteName("SignIn")
@@ -140,16 +141,18 @@ export default function App() {
               headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
               gestureDirection: 'horizontal',
               headerShown: false,
+              
             }} />
-          {/* <Stack.Screen
-            name="Details"
-            component={ContactPerson}
-            initialParams={{ itemId: 42 }} options={{
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={{
               cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
               headerStyleInterpolator: HeaderStyleInterpolators.forUIKit,
               gestureDirection: "horizontal",
+              headerBackTitleVisible:false,
               // headerShown: false,
-            }} /> */}
+            }} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
