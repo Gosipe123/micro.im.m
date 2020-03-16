@@ -32,6 +32,8 @@ export default function Home({ navigation }) {
   const searchInput = React.createRef();
   const [scrollView, setScrollView] = React.useState();
   const [controlOpen, setControlOpen] = React.useState(false);
+  const [rowShowSingleChoiceStutas, setRowShowSingleChoiceStutas] = React.useState(false);
+  const [leftSwipeRowMap, setLeftSwipeRowMap] = React.useState({ index: -1, rowMap: null });
 
   const [chatData, setChatData] = React.useState([]);
 
@@ -44,10 +46,17 @@ export default function Home({ navigation }) {
   const [headContentHeight] = React.useState(new Animated.Value(px2dp(90)))
   const [rightOptionsShow, setRightOptionsShow] = React.useState(false)
 
-  const [leftSwipeRow] = React.useState(new Animated.Value({}))
+  const [leftSwipeRow] = React.useState({})
+  //行编辑点击显示单选框动画
+  const [rowShowSingleChoice] = React.useState(new Animated.Value(px2dp(-64)))
+  //行选中 动画
+  // const [rowCheckd] = React.useState({})
 
   React.useEffect(() => {
     let chatDataA = [
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
+      { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
       { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
       { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
       { row_type: 0, name: '资讯讨论', sound: true, last_msg_time: 0, logo: '', unread_msg_count: 0, last_msg_user: "", last_msg_content: "", },
@@ -92,6 +101,21 @@ export default function Home({ navigation }) {
       leftSwipeRow[`${key}`] = new Animated.Value(0);
     }
   }, [])
+
+  const rowShowSingleChoiceOpacity = rowShowSingleChoice.interpolate({
+    inputRange: [-1, 1],
+    outputRange: [0, 1]
+  })
+
+  const rowShowSingleChoiceStart = Animated.timing(rowShowSingleChoice, {
+    toValue: 0,
+    duration: 350,
+  })
+
+  const rowShowSingleChoiceEnd = Animated.timing(rowShowSingleChoice, {
+    toValue: px2dp(-64),
+    duration: 350,
+  })
 
   //搜索框动画插值计算
   const searchBoxWidth = search.interpolate({
@@ -248,6 +272,8 @@ export default function Home({ navigation }) {
         directionalDistanceChangeThreshold={10}
         tension={50}
         swipeToOpenVelocityContribution={10}
+        disableLeftSwipe={rowShowSingleChoiceStutas}
+        disableRightSwipe={rowShowSingleChoiceStutas}
         onSwipeValueChange={
           Animated.event([
             {
@@ -309,20 +335,25 @@ export default function Home({ navigation }) {
           }}
         >
           <View style={{ flexDirection: 'row', paddingVertical: px2dp(14), paddingRight: px2dp(10) }}>
-            <View style={{ justifyContent: 'center', alignItems: 'center', width: px2dp(50),marginHorizontal:px2dp(18) }}>
-              <View>
-                <View style={{ width: px2dp(40), height: px2dp(40), borderColor: "#565656", borderWidth: 1 / PixelRatio.get(), borderRadius: '50%' }}></View>
-                {/* <View style={{ position: "absolute", top: px2dp(-5), left: px2dp(-5) }}>
-                  <Icone
-                    name="check-circle"
-                    size={px2dp(50)}
-                    color="#247ad6"
-                  />
-                </View> */}
+            <Animated.View style={{ width: px2dp(64), justifyContent: 'center', alignItems: 'center', marginLeft: rowShowSingleChoice, opacity: rowShowSingleChoiceOpacity }}>
+              <View style={{ width: px2dp(50), marginLeft: px2dp(14), }}>
+                <View>
+                  <View style={{ width: px2dp(40), height: px2dp(40), borderColor: "#565656", borderWidth: 1 / PixelRatio.get(), borderRadius: '50%' }}></View>
+                  {/* <View style={{ position: "absolute", top: px2dp(-5), left: px2dp(-5) }}>
+                    <View style={{ width: px2dp(50), height: px2dp(50) }}>
+                      <Icone
+                        name="check-circle"
+                        size={px2dp(50)}
+                        color="#247ad6"
+                      />
+                    </View>
+                  </View> */}
+
+                </View>
               </View>
-            </View>
-            <View style={{ alignItems: "center", justifyContent: "center", }}>
-              <View style={{ backgroundColor: "#2d8bf0", width: px2dp(110), height: px2dp(110), marginRight: px2dp(14), borderRadius: "50%", }}>
+            </Animated.View>
+            <View style={{ alignItems: "center", justifyContent: "center" }}>
+              <View style={{ backgroundColor: "#2d8bf0", width: px2dp(110), height: px2dp(110), marginHorizontal: px2dp(14), borderRadius: "50%", }}>
 
               </View>
             </View>
@@ -395,7 +426,24 @@ export default function Home({ navigation }) {
           <Animated.View style={[styles.header, { height: headContentHeight }]}>
             <Animated.View style={[styles.headerBox, { top: headContentTop, opacity: headContentOpacity }]}>
               <View style={{ flex: 1, height: "100%", justifyContent: 'center' }}>
-                <TouchableOpacity><Text style={{ fontSize: px2dp(30), marginLeft: px2dp(20), color: '#0086f1' }}>编辑</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  if (!rowShowSingleChoiceStutas) {
+                    if(leftSwipeRowMap.index != -1){
+                      leftSwipeRowMap.rowMap[leftSwipeRowMap.index].closeRow()
+                    }
+                    rowShowSingleChoiceEnd.stop()
+                    rowShowSingleChoiceStart.start()
+                    setRowShowSingleChoiceStutas(true)
+                  } else {
+                    rowShowSingleChoiceStart.stop()
+                    rowShowSingleChoiceEnd.start()
+                    setRowShowSingleChoiceStutas(false)
+                  }
+
+                }}>
+                  <Text style={{ fontSize: px2dp(30), marginLeft: px2dp(20), color: '#0086f1', display: rowShowSingleChoiceStutas ? "none" : "flex" }}>编辑</Text>
+                  <Text style={{ fontSize: px2dp(30), marginLeft: px2dp(20), color: '#0086f1', display: rowShowSingleChoiceStutas ? "flex" : "none" }}>完成</Text>
+                </TouchableOpacity>
               </View>
               <View style={{ flex: 2, alignItems: 'center' }}><Text style={{ fontSize: px2dp(34) }}>微信</Text></View>
               <View style={{ flex: 1, alignItems: "flex-end" }}>
@@ -431,11 +479,13 @@ export default function Home({ navigation }) {
               listViewRef={(ref) => {
                 setScrollView(ref)
               }}
-              onRowOpen={() => {
+              onRowOpen={(rowKey, rowMap) => {
                 setControlOpen(true)
+                setLeftSwipeRowMap({ index: rowKey, rowMap: rowMap })
               }}
               onRowClose={() => {
                 setControlOpen(false)
+                setLeftSwipeRowMap({ index: -1, rowMap: null })
               }}
               removeClippedSubviews={true}
               snapToInterval={px2dp(106)}
